@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ART Application</title>
+    <style>
+      /* General Styles */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f9;
+        color: #333;
+      }
+
+      h1 {
+        margin-top: 20px;
+        font-size: 2.5em;
+        color: #4a90e2;
+      }
+
+      form,
+      .button-container {
+        width: 90%;
+        max-width: 500px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        text-align: center; /* Center the button inside the container */
+      }
+
+      input[type="text"],
+      button {
+        width: calc(100% - 20px);
+        margin-bottom: 10px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      input[type="text"]:focus {
+        border-color: #4a90e2;
+        outline: none;
+      }
+
+      button {
+        display: block; /* Ensures buttons take full width in the container */
+        margin: 10px auto; /* Adds vertical spacing and centers the button */
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        background-color: #4a90e2;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #357ab8;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        width: 90%;
+        max-width: 500px;
+      }
+
+      li {
+        background: #fff;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .error {
+        color: red;
+        font-size: 0.9em;
+      }
+    </style>
+    <script>
+      const API_URL = "http://<BACKEND-API-URL>/api/users"; // Replace <BACKEND-API-URL> with your backend URL
+
+      // Function to fetch and display the list of users
+      async function fetchUsers() {
+        const output = document.getElementById("output");
+        try {
+          const response = await fetch(API_URL);
+          const users = await response.json();
+          output.innerHTML = users
+            .map(
+              (user) =>
+                `<li>${user.name} - ${user.jobTitle} at ${user.company}</li>`
+            )
+            .join("");
+        } catch (error) {
+          output.innerHTML = `<p class="error">Error fetching users: ${error.message}</p>`;
+        }
+      }
+
+      // Function to add a new user
+      async function addUser(event) {
+        event.preventDefault();
+        const name = document.getElementById("name").value;
+        const jobTitle = document.getElementById("jobTitle").value;
+        const company = document.getElementById("company").value;
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, jobTitle, company }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to add user");
+          }
+
+          alert("User added successfully!");
+          document.getElementById("userForm").reset();
+          fetchUsers(); // Refresh the list
+        } catch (error) {
+          alert("Error adding user: " + error.message);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>3-Tier Application</h1>
+
+    <!-- Form to add a new user -->
+    <form id="userForm" onsubmit="addUser(event)">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="text" id="jobTitle" placeholder="Job Title" required />
+      <input type="text" id="company" placeholder="Company" required />
+      <button type="submit">Add User</button>
+    </form>
+
+    <!-- Button to fetch the list of users -->
+    <div class="button-container">
+      <button onclick="fetchUsers()">List Users</button>
+    </div>
+
+    <!-- Display user list -->
+    <ul id="output"></ul>
+  </body>
+</html>
